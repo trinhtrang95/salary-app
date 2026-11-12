@@ -3,7 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { SalaryConfig } from '@/types';
-import { ShieldAlert, Award, Clock, HeartHandshake, PlusCircle, CheckCircle2 } from 'lucide-react';
+import {
+  Wallet,
+  ShieldCheck,
+  TrendingUp,
+  Clock,
+  Award,
+  HeartHandshake,
+  PlusCircle,
+  CheckCircle2,
+  PieChart,
+} from 'lucide-react';
 
 export default function PayrollTab({ userId, config, currentMonth, currentYear }: any) {
   const [totalHC, setTotalHC] = useState(0);
@@ -71,7 +81,7 @@ export default function PayrollTab({ userId, config, currentMonth, currentYear }
     setTimeout(() => setSavedSuccess(false), 2500);
   };
 
-  // Công thức chuẩn xác
+  // CÔNG THỨC CHUẨN XÁC
   const standardHours = (config.standard_work_days || 26) * 8;
   const unitBasic = standardHours > 0 ? config.basic_salary / standardHours : 0;
   const unitResp = standardHours > 0 ? config.responsibility_salary / standardHours : 0;
@@ -92,133 +102,190 @@ export default function PayrollTab({ userId, config, currentMonth, currentYear }
 
   const vnd = (n: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
+  // Tỷ lệ phần trăm thanh tiến độ
+  const basicPercent = totalIncome > 0 ? (actualBasic / totalIncome) * 100 : 0;
+  const respPercent = totalIncome > 0 ? (actualResp / totalIncome) * 100 : 0;
+  const otPercent = totalIncome > 0 ? (otPay / totalIncome) * 100 : 0;
+  const otherPercent = Math.max(0, 100 - basicPercent - respPercent - otPercent);
+
   return (
     <div className="space-y-6">
-      {/* THẺ LƯƠNG KIM CƯƠNG (FINTECH CARD) */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-6 sm:p-8 text-white shadow-2xl shadow-indigo-500/20 border border-indigo-400/20">
-        <div className="absolute -right-16 -top-16 w-56 h-56 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -left-16 -bottom-16 w-56 h-56 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+      {/* THẺ LƯƠNG TITANIUM ĐẲNG CẤP APPLE CARD */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/30 p-6 sm:p-8 shadow-2xl text-white">
+        {/* Vệt sáng trang trí Hologram */}
+        <div className="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold tracking-wider uppercase mb-3">
-              Tháng {currentMonth}/{currentYear} • Bậc {config.rank_level}
+        <div className="relative z-10 flex flex-col justify-between min-h-[220px]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center font-black text-xs text-indigo-300">
+                P
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-200">
+                PAYROLL PASSPORT • BẬC {config.rank_level}
+              </span>
             </div>
-            <div className="text-xs text-indigo-200 font-medium">THỰC LĨNH VỀ TÀI KHOẢN</div>
-            <div className="text-4xl sm:text-5xl font-black tracking-tight text-white mt-1">
+            <span className="text-xs font-bold text-slate-400 bg-black/40 px-3 py-1 rounded-full border border-white/5">
+              Tháng {currentMonth}/{currentYear}
+            </span>
+          </div>
+
+          <div className="my-5">
+            <span className="text-xs font-semibold text-indigo-300/80 block uppercase tracking-wider">
+              LƯƠNG THỰC LĨNH (NET SALARY)
+            </span>
+            <div className="text-4xl sm:text-6xl font-black tracking-tight text-white mt-1">
               {vnd(netSalary)}
             </div>
           </div>
 
-          <div className="flex gap-3 w-full sm:w-auto">
-            <div className="flex-1 sm:flex-initial bg-black/25 backdrop-blur-md rounded-2xl p-3 border border-white/10">
-              <span className="text-[11px] text-indigo-200 block">Tổng Thu Nhập</span>
-              <span className="text-sm sm:text-base font-bold text-emerald-300">+{vnd(totalIncome)}</span>
+          <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs font-bold">
+            <div>
+              <span className="text-slate-400 block text-[10px]">TỔNG THU NHẬP</span>
+              <span className="text-emerald-400 font-extrabold text-sm">+{vnd(totalIncome)}</span>
             </div>
-            <div className="flex-1 sm:flex-initial bg-black/25 backdrop-blur-md rounded-2xl p-3 border border-white/10">
-              <span className="text-[11px] text-indigo-200 block">Giảm Trừ</span>
-              <span className="text-sm sm:text-base font-bold text-rose-300">-{vnd(totalDeduction)}</span>
+            <div className="text-right">
+              <span className="text-slate-400 block text-[10px]">CÁC KHOẢN TRỪ</span>
+              <span className="text-rose-400 font-extrabold text-sm">-{vnd(totalDeduction)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* CHI TIẾT THU NHẬP DẠNG THẺ CAO CẤP */}
-      <div className="bg-slate-900 border border-slate-800/80 rounded-3xl p-5 sm:p-7 shadow-xl">
-        <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-          Chi Tiết Các Khoản Thu Nhập
+      {/* BIỂU ĐỒ THANH TỶ TRỌNG THU NHẬP (RATIO BAR) */}
+      <div className="bg-slate-900/90 border border-slate-800/80 rounded-3xl p-5 shadow-xl backdrop-blur-xl space-y-3">
+        <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+          <span className="flex items-center gap-1.5">
+            <PieChart className="w-4 h-4 text-indigo-400" /> Tỷ Trọng Cơ Cấu Thu Nhập
+          </span>
+          <span className="text-indigo-400 font-extrabold">{totalIncome > 0 ? '100%' : '0%'}</span>
+        </div>
+
+        {/* Thanh tỷ lệ đa màu */}
+        <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden flex gap-0.5 p-0.5">
+          <div style={{ width: `${basicPercent}%` }} className="h-full bg-cyan-400 rounded-full" title="LCB" />
+          <div style={{ width: `${respPercent}%` }} className="h-full bg-purple-400 rounded-full" title="Trách nhiệm" />
+          <div style={{ width: `${otPercent}%` }} className="h-full bg-amber-400 rounded-full" title="Tăng ca" />
+          <div style={{ width: `${otherPercent}%` }} className="h-full bg-emerald-400 rounded-full" title="Khác" />
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px] font-medium text-slate-400">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-cyan-400" /> LCB: {basicPercent.toFixed(0)}%
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-purple-400" /> Trách nhiệm: {respPercent.toFixed(0)}%
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400" /> Tăng ca: {otPercent.toFixed(0)}%
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" /> Phụ cấp: {otherPercent.toFixed(0)}%
+          </div>
+        </div>
+      </div>
+
+      {/* DANH SÁCH CHI TIẾT TỪNG KHOẢN DẠNG THẺ FINTECH */}
+      <div className="bg-slate-900/90 border border-slate-800/80 rounded-3xl p-5 sm:p-6 shadow-xl backdrop-blur-xl space-y-3">
+        <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">
+          Chi Tiết Bảng Kê Thu Nhập
         </h3>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+        <div className="space-y-2.5 text-xs sm:text-sm">
+          {/* Lương Cơ Bản */}
+          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-sm">
+              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold">
                 LCB
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-200">Lương cơ bản thực tế</p>
-                <p className="text-xs text-slate-500">{totalHC} giờ hành chính</p>
+                <p className="font-bold text-slate-200">Lương cơ bản thực tế</p>
+                <p className="text-[11px] text-slate-500">{totalHC}h × {vnd(unitBasic)}/h</p>
               </div>
             </div>
-            <span className="text-sm font-bold text-slate-100">{vnd(actualBasic)}</span>
+            <span className="font-black text-slate-100">{vnd(actualBasic)}</span>
           </div>
 
-          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+          {/* Lương Trách Nhiệm */}
+          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-sm">
+              <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold">
                 TN
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-200">Lương trách nhiệm</p>
-                <p className="text-xs text-slate-500">{totalHC + totalLeave} giờ hưởng TN</p>
+                <p className="font-bold text-slate-200">Lương trách nhiệm</p>
+                <p className="text-[11px] text-slate-500">{totalHC + totalLeave}h × {vnd(unitResp)}/h</p>
               </div>
             </div>
-            <span className="text-sm font-bold text-slate-100">{vnd(actualResp)}</span>
+            <span className="font-black text-slate-100">{vnd(actualResp)}</span>
           </div>
 
-          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+          {/* Nghỉ phép */}
+          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-sm">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
                 P
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-200">Tiền nghỉ phép có lương</p>
-                <p className="text-xs text-slate-500">{totalLeave} giờ phép</p>
+                <p className="font-bold text-slate-200">Tiền nghỉ phép có lương</p>
+                <p className="text-[11px] text-slate-500">{totalLeave} giờ phép</p>
               </div>
             </div>
-            <span className="text-sm font-bold text-slate-100">{vnd(leavePay)}</span>
+            <span className="font-black text-slate-100">{vnd(leavePay)}</span>
           </div>
 
-          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+          {/* Tăng ca */}
+          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">
-                <Clock className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+                <Clock className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-200">Làm thêm (Tăng ca)</p>
-                <p className="text-xs text-amber-400/80">{totalOT150}h (x1.5) + {totalOT200}h (x2.0)</p>
+                <p className="font-bold text-slate-200">Tiền làm thêm (Tăng ca)</p>
+                <p className="text-[11px] text-amber-400/80">{totalOT150}h (x1.5) + {totalOT200}h (x2.0)</p>
               </div>
             </div>
-            <span className="text-sm font-bold text-amber-400">+{vnd(otPay)}</span>
+            <span className="font-black text-amber-400">+{vnd(otPay)}</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
-              <div className="flex items-center gap-2.5">
-                <Award className="w-5 h-5 text-indigo-400" />
-                <span className="text-xs font-semibold text-slate-300">Thâm niên</span>
+          {/* Thâm niên & Chuyên cần */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center justify-between">
+              <div>
+                <span className="text-[11px] text-slate-400 block">Thâm niên</span>
+                <span className="font-bold text-slate-200 text-xs">{vnd(seniority)}</span>
               </div>
-              <span className="text-xs font-bold text-slate-100">{vnd(seniority)}</span>
+              <Award className="w-4 h-4 text-indigo-400" />
             </div>
 
-            <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
-              <div className="flex items-center gap-2.5">
-                <HeartHandshake className="w-5 h-5 text-indigo-400" />
-                <span className="text-xs font-semibold text-slate-300">Chuyên cần</span>
+            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center justify-between">
+              <div>
+                <span className="text-[11px] text-slate-400 block">Chuyên cần</span>
+                <span className="font-bold text-slate-200 text-xs">{vnd(diligence)}</span>
               </div>
-              <span className="text-xs font-bold text-slate-100">{vnd(diligence)}</span>
+              <HeartHandshake className="w-4 h-4 text-indigo-400" />
             </div>
           </div>
 
-          {/* Ô Nhập Khoản Khác Sang Trọng */}
-          <div className="p-4 bg-indigo-950/30 rounded-2xl border border-indigo-500/20 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <PlusCircle className="w-4 h-4 text-indigo-400" />
-                <span className="text-xs font-bold text-indigo-200">Khoản điều chỉnh khác (Thưởng / Phạt):</span>
-              </div>
+          {/* Khoản Khác (Thưởng / Trừ) */}
+          <div className="p-4 bg-indigo-950/30 border border-indigo-500/20 rounded-2xl space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-indigo-200 text-xs flex items-center gap-1.5">
+                <PlusCircle className="w-4 h-4 text-indigo-400" /> Khoản Khác (Thưởng / Phạt):
+              </span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
                   value={otherAmount || ''}
                   onChange={(e) => setOtherAmount(Number(e.target.value))}
                   placeholder="0"
-                  className="w-32 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-right text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-28 px-3 py-1 bg-slate-950 border border-slate-700 rounded-xl text-right font-black text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
                 <button
                   onClick={handleSaveAdj}
                   disabled={saving}
-                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-md transition"
+                  className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition"
                 >
                   {saving ? '...' : 'Lưu'}
                 </button>
@@ -229,29 +296,29 @@ export default function PayrollTab({ userId, config, currentMonth, currentYear }
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Ghi chú lý do thưởng/trừ..."
-              className="w-full text-xs px-3 py-1.5 bg-slate-900/80 border border-slate-800 rounded-xl text-slate-300 placeholder:text-slate-600 focus:outline-none"
+              className="w-full text-xs px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-300 placeholder:text-slate-600 focus:outline-none"
             />
             {savedSuccess && (
               <span className="text-[11px] text-emerald-400 flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Đã lưu thành công
+                <CheckCircle2 className="w-3.5 h-3.5" /> Đã lưu khoản điều chỉnh thành công!
               </span>
             )}
           </div>
         </div>
 
-        {/* CÁC KHOẢN GIẢM TRỪ */}
-        <h3 className="text-sm font-bold text-rose-400/90 uppercase tracking-wider mt-6 mb-4 flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4" /> Các Khoản Trích Nộp
+        {/* Các Khoản Giảm Trừ */}
+        <h3 className="text-xs font-black uppercase tracking-wider text-rose-400/90 pt-4 mb-2 flex items-center gap-1.5">
+          <ShieldCheck className="w-4 h-4" /> Các Khoản Trích Nộp Theo Quy Định
         </h3>
 
-        <div className="space-y-2.5">
-          <div className="flex justify-between items-center p-3 bg-slate-950/60 rounded-2xl border border-slate-800/60 text-xs">
-            <span className="text-slate-400">Bảo hiểm xã hội ({config.insurance_rate}%)</span>
+        <div className="space-y-2 text-xs">
+          <div className="flex justify-between items-center p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl">
+            <span className="text-slate-400">Bảo hiểm bắt buộc ({config.insurance_rate}% LCB)</span>
             <span className="font-bold text-rose-400">-{vnd(insDeduct)}</span>
           </div>
 
-          <div className="flex justify-between items-center p-3 bg-slate-950/60 rounded-2xl border border-slate-800/60 text-xs">
-            <span className="text-slate-400">Đoàn phí ({config.union_rate}%)</span>
+          <div className="flex justify-between items-center p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl">
+            <span className="text-slate-400">Đoàn phí công đoàn ({config.union_rate}% LCB)</span>
             <span className="font-bold text-rose-400">-{vnd(unionDeduct)}</span>
           </div>
         </div>
