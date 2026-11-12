@@ -16,7 +16,7 @@ export default function MainPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'timesheet' | 'payroll' | 'settings'>('timesheet');
 
-  // Khởi tạo cố định, không dùng new Date() ở đây
+  // Khởi tạo an toàn tuyệt đối
   const [currentMonth, setCurrentMonth] = useState<number>(11);
   const [currentYear, setCurrentYear] = useState<number>(2025);
 
@@ -49,7 +49,6 @@ export default function MainPage() {
   };
 
   useEffect(() => {
-    // Chỉ lấy ngày giờ khi đã vào trình duyệt
     const d = new Date();
     setCurrentMonth(d.getMonth() + 1);
     setCurrentYear(d.getFullYear());
