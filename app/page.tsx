@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import AuthView from '@/components/AuthView';
@@ -12,11 +10,11 @@ import { SalaryConfig } from '@/types';
 import { Settings, CalendarDays, Receipt, LogOut } from 'lucide-react';
 
 export default function MainPage() {
+  const [mounted, setMounted] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'timesheet' | 'payroll' | 'settings'>('timesheet');
 
-  // Khởi tạo an toàn tuyệt đối
   const [currentMonth, setCurrentMonth] = useState<number>(11);
   const [currentYear, setCurrentYear] = useState<number>(2025);
 
@@ -49,17 +47,21 @@ export default function MainPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     const d = new Date();
     setCurrentMonth(d.getMonth() + 1);
     setCurrentYear(d.getFullYear());
-
     checkUser();
   }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center font-bold text-slate-500">
-        Đang tải ứng dụng...
+        Đang tải dữ liệu...
       </div>
     );
   }
