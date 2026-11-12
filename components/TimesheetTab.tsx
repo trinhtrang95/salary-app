@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { DayTimesheet } from '@/types';
-import { Save, Wand2, Calendar, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Save, Wand2, RotateCcw, CheckCircle2 } from 'lucide-react';
 
 const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
@@ -92,7 +92,7 @@ export default function TimesheetTab({
   };
 
   const handleClearAll = () => {
-    if (confirm('Bạn muốn đưa số giờ về 0 hết?')) {
+    if (confirm('Bạn muốn đặt lại số giờ của tháng này về 0?')) {
       setDays((prev) => prev.map((d) => ({ ...d, normal_hours: 0, ot_150_hours: 0, ot_200_hours: 0, leave_hours: 0 })));
     }
   };
@@ -127,13 +127,13 @@ export default function TimesheetTab({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-2xl p-4 shadow-sm border flex flex-wrap items-center justify-between gap-3">
+      {/* THANH ĐIỀU KHIỂN & CHỌN THÁNG */}
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl">
         <div className="flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-indigo-600" />
           <select
             value={currentMonth}
             onChange={(e) => onMonthChange(Number(e.target.value))}
-            className="p-2 border rounded-xl font-bold"
+            className="bg-slate-800 text-white border border-slate-700 rounded-2xl px-3 py-2 text-xs font-bold focus:outline-none"
           >
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
@@ -144,7 +144,7 @@ export default function TimesheetTab({
           <select
             value={currentYear}
             onChange={(e) => onYearChange(Number(e.target.value))}
-            className="p-2 border rounded-xl font-bold"
+            className="bg-slate-800 text-white border border-slate-700 rounded-2xl px-3 py-2 text-xs font-bold focus:outline-none"
           >
             {[2024, 2025, 2026, 2027].map((y) => (
               <option key={y} value={y}>
@@ -158,170 +158,124 @@ export default function TimesheetTab({
           <button
             onClick={handleQuickFillWeekdays}
             type="button"
-            className="px-3 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-xs font-semibold flex items-center gap-1"
+            className="px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition"
           >
             <Wand2 className="w-3.5 h-3.5" /> Điền 8h T2-T7
           </button>
           <button
             onClick={handleClearAll}
             type="button"
-            className="px-3 py-2 bg-slate-100 rounded-xl text-xs font-semibold text-slate-600"
+            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-2xl transition"
+            title="Xóa trắng tháng"
           >
-            <RotateCcw className="w-3.5 h-3.5" /> Xóa
+            <RotateCcw className="w-4 h-4" />
           </button>
           <button
             onClick={handleSaveTimesheet}
             disabled={saving}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-semibold flex items-center gap-1 shadow-md"
+            className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 transition active:scale-95 disabled:opacity-50"
           >
-            <Save className="w-3.5 h-3.5" /> {saving ? 'Lưu...' : 'Lưu'}
+            <Save className="w-3.5 h-3.5" /> {saving ? '...' : 'Lưu'}
           </button>
         </div>
       </div>
 
       {msg && (
-        <div className="p-3 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-sm flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" /> Đã lưu bảng chấm công thành công!
+        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 rounded-2xl text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> Đã lưu thành công dữ liệu chấm công!
         </div>
       )}
 
-      {/* Hiển thị trên máy tính (Table) */}
-      <div className="hidden md:block bg-white rounded-2xl shadow-sm border overflow-hidden">
-        <table className="w-full text-left text-sm border-collapse">
-          <thead>
-            <tr className="bg-slate-50 border-b text-slate-600">
-              <th className="p-3 text-center w-16">Ngày</th>
-              <th className="p-3 text-center w-16">Thứ</th>
-              <th className="p-3 text-center">Hành chính (8h)</th>
-              <th className="p-3 text-center text-amber-600">Làm thêm 150%</th>
-              <th className="p-3 text-center text-rose-600">Làm thêm 200%</th>
-              <th className="p-3 text-center text-emerald-600">Phép hưởng lương</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {days.map((d) => (
-              <tr key={d.dateStr} className={d.isSunday ? 'bg-rose-50/50' : ''}>
-                <td className="p-2 text-center font-bold">{d.dayNumber}</td>
-                <td className="p-2 text-center font-semibold text-xs">
-                  <span className={d.isSunday ? 'text-rose-600' : 'text-slate-600'}>{d.dayOfWeek}</span>
-                </td>
-                <td className="p-2 text-center">
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={d.normal_hours || ''}
-                    onChange={(e) => handleHourChange(d.dateStr, 'normal_hours', e.target.value)}
-                    className="w-20 text-center py-1 border rounded-lg"
-                    placeholder="0"
-                  />
-                </td>
-                <td className="p-2 text-center">
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={d.ot_150_hours || ''}
-                    onChange={(e) => handleHourChange(d.dateStr, 'ot_150_hours', e.target.value)}
-                    className="w-20 text-center py-1 border rounded-lg text-amber-600"
-                    placeholder="0"
-                  />
-                </td>
-                <td className="p-2 text-center">
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={d.ot_200_hours || ''}
-                    onChange={(e) => handleHourChange(d.dateStr, 'ot_200_hours', e.target.value)}
-                    className="w-20 text-center py-1 border rounded-lg text-rose-600"
-                    placeholder="0"
-                  />
-                </td>
-                <td className="p-2 text-center">
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={d.leave_hours || ''}
-                    onChange={(e) => handleHourChange(d.dateStr, 'leave_hours', e.target.value)}
-                    className="w-20 text-center py-1 border rounded-lg text-emerald-600"
-                    placeholder="0"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="bg-slate-100 font-bold">
-              <td colSpan={2} className="p-3 text-center">Tổng:</td>
-              <td className="p-3 text-center text-indigo-700">{totalHC.toFixed(1)}h</td>
-              <td className="p-3 text-center text-amber-600">{totalOT150.toFixed(1)}h</td>
-              <td className="p-3 text-center text-rose-600">{totalOT200.toFixed(1)}h</td>
-              <td className="p-3 text-center text-emerald-600">{totalLeave.toFixed(1)}h</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      {/* Hiển thị trên điện thoại (Cards) */}
-      <div className="block md:hidden space-y-3">
+      {/* DANH SÁCH THẺ CHẤM CÔNG MOBILE (VUỐT CHẠM CỰC SANG) */}
+      <div className="space-y-2.5">
         {days.map((d) => (
-          <div key={d.dateStr} className={`p-4 rounded-2xl border ${d.isSunday ? 'bg-rose-50/50' : 'bg-white'}`}>
-            <div className="flex justify-between font-bold mb-2">
-              <span>Ngày {d.dayNumber} ({d.dayOfWeek})</span>
-              <span className="text-xs text-slate-400 font-normal">{d.dateStr}</span>
+          <div
+            key={d.dateStr}
+            className={`p-3.5 rounded-3xl border transition-all ${
+              d.isSunday
+                ? 'bg-rose-950/20 border-rose-900/40'
+                : 'bg-slate-900/80 border-slate-800/80 hover:border-slate-700'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs ${
+                    d.isSunday ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-800 text-slate-200'
+                  }`}
+                >
+                  {d.dayNumber}
+                </span>
+                <span className={`text-xs font-bold ${d.isSunday ? 'text-rose-400' : 'text-slate-400'}`}>
+                  {d.dayOfWeek}
+                </span>
+              </div>
+              <span className="text-[11px] text-slate-500">{d.dateStr}</span>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <span>Hành chính:</span>
+
+            <div className="grid grid-cols-4 gap-2 text-center text-[11px]">
+              <div className="bg-slate-950/60 p-2 rounded-2xl border border-slate-800/60">
+                <span className="text-slate-400 block mb-1">HC (8h)</span>
                 <input
                   type="number"
                   step="0.5"
                   value={d.normal_hours || ''}
                   onChange={(e) => handleHourChange(d.dateStr, 'normal_hours', e.target.value)}
-                  className="w-full text-center p-1.5 border rounded-lg font-bold"
                   placeholder="0"
+                  className="w-full text-center bg-transparent font-bold text-white focus:outline-none"
                 />
               </div>
-              <div>
-                <span className="text-amber-600">Tăng ca 150%:</span>
+
+              <div className="bg-amber-950/20 p-2 rounded-2xl border border-amber-900/30">
+                <span className="text-amber-400 block mb-1">150%</span>
                 <input
                   type="number"
                   step="0.5"
                   value={d.ot_150_hours || ''}
                   onChange={(e) => handleHourChange(d.dateStr, 'ot_150_hours', e.target.value)}
-                  className="w-full text-center p-1.5 border rounded-lg text-amber-600 font-bold"
                   placeholder="0"
+                  className="w-full text-center bg-transparent font-bold text-amber-300 focus:outline-none"
                 />
               </div>
-              <div>
-                <span className="text-rose-600">Tăng ca 200%:</span>
+
+              <div className="bg-rose-950/20 p-2 rounded-2xl border border-rose-900/30">
+                <span className="text-rose-400 block mb-1">200%</span>
                 <input
                   type="number"
                   step="0.5"
                   value={d.ot_200_hours || ''}
                   onChange={(e) => handleHourChange(d.dateStr, 'ot_200_hours', e.target.value)}
-                  className="w-full text-center p-1.5 border rounded-lg text-rose-600 font-bold"
                   placeholder="0"
+                  className="w-full text-center bg-transparent font-bold text-rose-300 focus:outline-none"
                 />
               </div>
-              <div>
-                <span className="text-emerald-600">Nghỉ phép:</span>
+
+              <div className="bg-emerald-950/20 p-2 rounded-2xl border border-emerald-900/30">
+                <span className="text-emerald-400 block mb-1">Phép</span>
                 <input
                   type="number"
                   step="0.5"
                   value={d.leave_hours || ''}
                   onChange={(e) => handleHourChange(d.dateStr, 'leave_hours', e.target.value)}
-                  className="w-full text-center p-1.5 border rounded-lg text-emerald-600 font-bold"
                   placeholder="0"
+                  className="w-full text-center bg-transparent font-bold text-emerald-300 focus:outline-none"
                 />
               </div>
             </div>
           </div>
         ))}
+      </div>
 
-        <div className="bg-slate-900 text-white p-4 rounded-2xl sticky bottom-2 text-xs grid grid-cols-2 gap-2">
-          <div>HC: <b className="text-indigo-300">{totalHC.toFixed(1)}h</b></div>
-          <div>LT 150%: <b className="text-amber-300">{totalOT150.toFixed(1)}h</b></div>
-          <div>LT 200%: <b className="text-rose-300">{totalOT200.toFixed(1)}h</b></div>
-          <div>Phép: <b className="text-emerald-300">{totalLeave.toFixed(1)}h</b></div>
+      {/* THANH TỔNG CỘNG NẰM NỔI Ở ĐÁY */}
+      <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-700/80 p-4 rounded-3xl shadow-2xl sticky bottom-20 sm:bottom-4">
+        <div className="text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-1">
+          Tổng Giờ Làm Tháng {currentMonth}
+        </div>
+        <div className="grid grid-cols-4 gap-2 text-xs font-bold">
+          <div>HC: <span className="text-indigo-400">{totalHC.toFixed(1)}h</span></div>
+          <div>150%: <span className="text-amber-400">{totalOT150.toFixed(1)}h</span></div>
+          <div>200%: <span className="text-rose-400">{totalOT200.toFixed(1)}h</span></div>
+          <div>Phép: <span className="text-emerald-400">{totalLeave.toFixed(1)}h</span></div>
         </div>
       </div>
     </div>
