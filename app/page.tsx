@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import AuthView from '@/components/AuthView';
@@ -57,8 +59,8 @@ export default function MainPage() {
   if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
-        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-slate-400 font-medium text-sm animate-pulse">Đang tải bảng lương...</p>
+        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-slate-400 font-bold text-xs uppercase tracking-wider">Đang khởi tạo...</p>
       </div>
     );
   }
@@ -68,17 +70,17 @@ export default function MainPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pb-28 sm:pb-12">
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pb-28 sm:pb-12 antialiased selection:bg-indigo-500 selection:text-white">
+      {/* Top Header Glassmorphism */}
+      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-2xl border-b border-slate-800/80">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-white tracking-wide">Bảng Lương Của Tôi</h1>
-              <p className="text-xs text-slate-400 truncate max-w-[180px] sm:max-w-none">{session.user.email}</p>
+              <h1 className="text-sm font-black text-white tracking-wide uppercase">Bảng Lương Pro</h1>
+              <p className="text-[11px] text-slate-400 truncate max-w-[170px] sm:max-w-none">{session.user.email}</p>
             </div>
           </div>
 
@@ -99,7 +101,7 @@ export default function MainPage() {
                   activeTab === 'timesheet' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Chấm Công
+                Chấm Công Lịch
               </button>
               <button
                 onClick={() => setActiveTab('settings')}
@@ -113,7 +115,7 @@ export default function MainPage() {
 
             <button
               onClick={() => supabase.auth.signOut().then(() => setSession(null))}
-              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-900/50 transition-colors"
+              className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 transition"
               title="Đăng xuất"
             >
               <LogOut className="w-4 h-4" />
@@ -151,11 +153,11 @@ export default function MainPage() {
         )}
       </main>
 
-      {/* Modern Mobile Bottom Navigation (Kiểu iPhone) */}
-      <nav className="sm:hidden fixed bottom-4 left-4 right-4 z-50 bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-2 shadow-2xl shadow-black/80 flex items-center justify-around">
+      {/* Floating Pill Bottom Navigation (Thao tác ngón cái trên Mobile) */}
+      <nav className="sm:hidden fixed bottom-4 left-4 right-4 z-50 bg-slate-900/90 backdrop-blur-2xl border border-slate-800/90 rounded-3xl p-1.5 shadow-2xl shadow-black/80 flex items-center justify-around">
         <button
           onClick={() => setActiveTab('payroll')}
-          className={`flex flex-col items-center gap-1 py-1 px-5 rounded-2xl transition-all ${
+          className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-2xl transition-all ${
             activeTab === 'payroll' ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400'
           }`}
         >
@@ -165,7 +167,7 @@ export default function MainPage() {
 
         <button
           onClick={() => setActiveTab('timesheet')}
-          className={`flex flex-col items-center gap-1 py-1 px-5 rounded-2xl transition-all ${
+          className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-2xl transition-all ${
             activeTab === 'timesheet' ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400'
           }`}
         >
@@ -175,7 +177,7 @@ export default function MainPage() {
 
         <button
           onClick={() => setActiveTab('settings')}
-          className={`flex flex-col items-center gap-1 py-1 px-5 rounded-2xl transition-all ${
+          className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-2xl transition-all ${
             activeTab === 'settings' ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400'
           }`}
         >
