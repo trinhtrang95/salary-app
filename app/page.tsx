@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import AuthView from '@/components/AuthView';
@@ -14,9 +16,9 @@ export default function MainPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'timesheet' | 'payroll' | 'settings'>('timesheet');
 
-  const now = new Date();
-  const [currentMonth, setCurrentMonth] = useState<number>(now.getMonth() + 1);
-  const [currentYear, setCurrentYear] = useState<number>(now.getFullYear());
+  // Khởi tạo cố định, không dùng new Date() ở đây
+  const [currentMonth, setCurrentMonth] = useState<number>(11);
+  const [currentYear, setCurrentYear] = useState<number>(2025);
 
   const [salaryConfig, setSalaryConfig] = useState<SalaryConfig>({
     rank_level: 'K-F',
@@ -47,6 +49,11 @@ export default function MainPage() {
   };
 
   useEffect(() => {
+    // Chỉ lấy ngày giờ khi đã vào trình duyệt
+    const d = new Date();
+    setCurrentMonth(d.getMonth() + 1);
+    setCurrentYear(d.getFullYear());
+
     checkUser();
   }, []);
 
@@ -69,7 +76,7 @@ export default function MainPage() {
           <div className="font-black text-indigo-600 text-lg">💰 CHẤM CÔNG & LƯƠNG</div>
           <button
             onClick={() => supabase.auth.signOut().then(() => setSession(null))}
-            className="flex items-center gap-1 text-xs text-rose-600 font-bold bg-rose-50 px-3 py-1.5 rounded-xl"
+            className="flex items-center gap-1 text-xs text-rose-600 font-bold bg-rose-50 px-3 py-1.5 rounded-xl transition hover:bg-rose-100"
           >
             <LogOut className="w-4 h-4" /> Đăng xuất
           </button>
