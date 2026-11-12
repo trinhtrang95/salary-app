@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { SalaryConfig } from '@/types';
-import { Calculator, Save } from 'lucide-react';
+import { ShieldAlert, Award, Clock, HeartHandshake, PlusCircle, CheckCircle2 } from 'lucide-react';
 
 export default function PayrollTab({ userId, config, currentMonth, currentYear }: any) {
   const [totalHC, setTotalHC] = useState(0);
@@ -13,6 +13,7 @@ export default function PayrollTab({ userId, config, currentMonth, currentYear }
   const [otherAmount, setOtherAmount] = useState<number>(0);
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
 
   const loadData = async () => {
     const startDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
@@ -66,10 +67,11 @@ export default function PayrollTab({ userId, config, currentMonth, currentYear }
       { onConflict: 'user_id,month,year' }
     );
     setSaving(false);
-    alert('Đã lưu khoản khác thành công!');
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 2500);
   };
 
-  // Tính toán
+  // Công thức chuẩn xác
   const standardHours = (config.standard_work_days || 26) * 8;
   const unitBasic = standardHours > 0 ? config.basic_salary / standardHours : 0;
   const unitResp = standardHours > 0 ? config.responsibility_salary / standardHours : 0;
@@ -85,93 +87,173 @@ export default function PayrollTab({ userId, config, currentMonth, currentYear }
   const totalIncome = actualBasic + actualResp + leavePay + otPay + seniority + diligence + other;
   const insDeduct = Math.round(config.basic_salary * (config.insurance_rate / 100));
   const unionDeduct = Math.round(config.basic_salary * (config.union_rate / 100));
-  const netSalary = totalIncome - insDeduct - unionDeduct;
+  const totalDeduction = insDeduct + unionDeduct;
+  const netSalary = totalIncome - totalDeduction;
 
   const vnd = (n: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl">
-        <div className="flex items-center gap-2 text-indigo-200 text-xs font-semibold">
-          <Calculator className="w-4 h-4" /> PHIẾU LƯƠNG THÁNG {currentMonth}/{currentYear}
-        </div>
-        <div className="text-4xl sm:text-5xl font-black mt-2">{vnd(netSalary)}</div>
-        <div className="text-xs text-indigo-200 mt-1">Lương thực lĩnh về tài khoản</div>
-      </div>
+    <div className="space-y-6">
+      {/* THẺ LƯƠNG KIM CƯƠNG (FINTECH CARD) */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-6 sm:p-8 text-white shadow-2xl shadow-indigo-500/20 border border-indigo-400/20">
+        <div className="absolute -right-16 -top-16 w-56 h-56 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -left-16 -bottom-16 w-56 h-56 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="bg-white rounded-2xl shadow-sm border p-6 space-y-3 text-sm">
-        <div className="flex justify-between border-b pb-2">
-          <span>1. Lương cơ bản thực tế ({totalHC}h):</span>
-          <b>{vnd(actualBasic)}</b>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span>2. Lương trách nhiệm thực tế:</span>
-          <b>{vnd(actualResp)}</b>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span>3. Tiền nghỉ phép ({totalLeave}h):</span>
-          <b>{vnd(leavePay)}</b>
-        </div>
-        <div className="flex justify-between border-b pb-2 text-amber-600">
-          <span>4. Lương làm thêm ({totalOT150 + totalOT200}h):</span>
-          <b>+{vnd(otPay)}</b>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span>5. Phụ cấp thâm niên:</span>
-          <b>{vnd(seniority)}</b>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span>6. Phụ cấp chuyên cần:</span>
-          <b>{vnd(diligence)}</b>
-        </div>
-
-        {/* Khoản khác */}
-        <div className="bg-slate-50 p-3 rounded-xl space-y-2 border">
-          <div className="flex justify-between items-center gap-2">
-            <span className="font-semibold">7. Khoản khác (Thưởng / Trừ):</span>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                value={otherAmount}
-                onChange={(e) => setOtherAmount(Number(e.target.value))}
-                className="w-32 p-1 border rounded-lg text-right font-bold"
-              />
-              <button
-                onClick={handleSaveAdj}
-                disabled={saving}
-                className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1"
-              >
-                <Save className="w-3.5 h-3.5" /> Lưu
-              </button>
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold tracking-wider uppercase mb-3">
+              Tháng {currentMonth}/{currentYear} • Bậc {config.rank_level}
+            </div>
+            <div className="text-xs text-indigo-200 font-medium">THỰC LĨNH VỀ TÀI KHOẢN</div>
+            <div className="text-4xl sm:text-5xl font-black tracking-tight text-white mt-1">
+              {vnd(netSalary)}
             </div>
           </div>
-          <input
-            type="text"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Ghi chú lý do..."
-            className="w-full text-xs p-1.5 border rounded-lg"
-          />
+
+          <div className="flex gap-3 w-full sm:w-auto">
+            <div className="flex-1 sm:flex-initial bg-black/25 backdrop-blur-md rounded-2xl p-3 border border-white/10">
+              <span className="text-[11px] text-indigo-200 block">Tổng Thu Nhập</span>
+              <span className="text-sm sm:text-base font-bold text-emerald-300">+{vnd(totalIncome)}</span>
+            </div>
+            <div className="flex-1 sm:flex-initial bg-black/25 backdrop-blur-md rounded-2xl p-3 border border-white/10">
+              <span className="text-[11px] text-indigo-200 block">Giảm Trừ</span>
+              <span className="text-sm sm:text-base font-bold text-rose-300">-{vnd(totalDeduction)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CHI TIẾT THU NHẬP DẠNG THẺ CAO CẤP */}
+      <div className="bg-slate-900 border border-slate-800/80 rounded-3xl p-5 sm:p-7 shadow-xl">
+        <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+          Chi Tiết Các Khoản Thu Nhập
+        </h3>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-sm">
+                LCB
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-200">Lương cơ bản thực tế</p>
+                <p className="text-xs text-slate-500">{totalHC} giờ hành chính</p>
+              </div>
+            </div>
+            <span className="text-sm font-bold text-slate-100">{vnd(actualBasic)}</span>
+          </div>
+
+          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-sm">
+                TN
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-200">Lương trách nhiệm</p>
+                <p className="text-xs text-slate-500">{totalHC + totalLeave} giờ hưởng TN</p>
+              </div>
+            </div>
+            <span className="text-sm font-bold text-slate-100">{vnd(actualResp)}</span>
+          </div>
+
+          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-sm">
+                P
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-200">Tiền nghỉ phép có lương</p>
+                <p className="text-xs text-slate-500">{totalLeave} giờ phép</p>
+              </div>
+            </div>
+            <span className="text-sm font-bold text-slate-100">{vnd(leavePay)}</span>
+          </div>
+
+          <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-200">Làm thêm (Tăng ca)</p>
+                <p className="text-xs text-amber-400/80">{totalOT150}h (x1.5) + {totalOT200}h (x2.0)</p>
+              </div>
+            </div>
+            <span className="text-sm font-bold text-amber-400">+{vnd(otPay)}</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+              <div className="flex items-center gap-2.5">
+                <Award className="w-5 h-5 text-indigo-400" />
+                <span className="text-xs font-semibold text-slate-300">Thâm niên</span>
+              </div>
+              <span className="text-xs font-bold text-slate-100">{vnd(seniority)}</span>
+            </div>
+
+            <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800/60">
+              <div className="flex items-center gap-2.5">
+                <HeartHandshake className="w-5 h-5 text-indigo-400" />
+                <span className="text-xs font-semibold text-slate-300">Chuyên cần</span>
+              </div>
+              <span className="text-xs font-bold text-slate-100">{vnd(diligence)}</span>
+            </div>
+          </div>
+
+          {/* Ô Nhập Khoản Khác Sang Trọng */}
+          <div className="p-4 bg-indigo-950/30 rounded-2xl border border-indigo-500/20 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <PlusCircle className="w-4 h-4 text-indigo-400" />
+                <span className="text-xs font-bold text-indigo-200">Khoản điều chỉnh khác (Thưởng / Phạt):</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={otherAmount || ''}
+                  onChange={(e) => setOtherAmount(Number(e.target.value))}
+                  placeholder="0"
+                  className="w-32 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-right text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <button
+                  onClick={handleSaveAdj}
+                  disabled={saving}
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-md transition"
+                >
+                  {saving ? '...' : 'Lưu'}
+                </button>
+              </div>
+            </div>
+            <input
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Ghi chú lý do thưởng/trừ..."
+              className="w-full text-xs px-3 py-1.5 bg-slate-900/80 border border-slate-800 rounded-xl text-slate-300 placeholder:text-slate-600 focus:outline-none"
+            />
+            {savedSuccess && (
+              <span className="text-[11px] text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Đã lưu thành công
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="flex justify-between py-2 text-base font-bold text-indigo-700 border-b">
-          <span>TỔNG THU NHẬP:</span>
-          <span>{vnd(totalIncome)}</span>
-        </div>
+        {/* CÁC KHOẢN GIẢM TRỪ */}
+        <h3 className="text-sm font-bold text-rose-400/90 uppercase tracking-wider mt-6 mb-4 flex items-center gap-2">
+          <ShieldAlert className="w-4 h-4" /> Các Khoản Trích Nộp
+        </h3>
 
-        <div className="flex justify-between text-rose-600 border-b pb-2">
-          <span>8. Trừ bảo hiểm ({config.insurance_rate}%):</span>
-          <b>-{vnd(insDeduct)}</b>
-        </div>
+        <div className="space-y-2.5">
+          <div className="flex justify-between items-center p-3 bg-slate-950/60 rounded-2xl border border-slate-800/60 text-xs">
+            <span className="text-slate-400">Bảo hiểm xã hội ({config.insurance_rate}%)</span>
+            <span className="font-bold text-rose-400">-{vnd(insDeduct)}</span>
+          </div>
 
-        <div className="flex justify-between text-rose-600 border-b pb-2">
-          <span>9. Trừ phí công đoàn ({config.union_rate}%):</span>
-          <b>-{vnd(unionDeduct)}</b>
-        </div>
-
-        <div className="flex justify-between pt-2 text-xl font-black text-slate-900">
-          <span>THỰC LĨNH:</span>
-          <span className="text-indigo-600">{vnd(netSalary)}</span>
+          <div className="flex justify-between items-center p-3 bg-slate-950/60 rounded-2xl border border-slate-800/60 text-xs">
+            <span className="text-slate-400">Đoàn phí ({config.union_rate}%)</span>
+            <span className="font-bold text-rose-400">-{vnd(unionDeduct)}</span>
+          </div>
         </div>
       </div>
     </div>
