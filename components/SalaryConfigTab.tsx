@@ -55,105 +55,105 @@ export default function SalaryConfigTab({ config, userId, onRefresh }: Props) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8">
-      <h2 className="text-xl font-bold text-slate-800 mb-1">Cài Đặt Mức Lương & Phụ Cấp</h2>
-      <p className="text-sm text-slate-500 mb-6">Thiết lập các thông số cơ bản của bạn để tính công chuẩn xác</p>
+    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+      <h2 className="text-lg font-bold text-white mb-1">Cài Đặt Mức Lương Cá Nhân</h2>
+      <p className="text-xs text-slate-400 mb-6">Thiết lập các thông số hợp đồng lao động để app tự động tính toán</p>
 
       {saved && (
-        <div className="mb-6 p-4 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-2 text-sm">
-          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+        <div className="mb-6 p-3.5 rounded-2xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 flex items-center gap-2 text-xs">
+          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
           <span>Đã lưu thành công các thông số lương!</span>
         </div>
       )}
 
       <form onSubmit={handleSave} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Bậc Lương</label>
+          <label className="block text-xs font-bold text-slate-300 mb-1.5">Bậc Lương</label>
           <input
             type="text"
             value={formData.rank_level}
             onChange={(e) => handleChange('rank_level', e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Ngày Công Chuẩn Trong Tháng</label>
+          <label className="block text-xs font-bold text-slate-300 mb-1.5">Ngày Công Chuẩn Trong Tháng</label>
           <input
             type="number"
             step="0.5"
             value={formData.standard_work_days}
             onChange={(e) => handleChange('standard_work_days', e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Lương Cơ Bản (VNĐ)</label>
+          <label className="block text-xs font-bold text-slate-300 mb-1.5">Lương Cơ Bản (VNĐ)</label>
           <input
             type="number"
             value={formData.basic_salary}
             onChange={(e) => handleChange('basic_salary', e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Lương Trách Nhiệm (VNĐ)</label>
+          <label className="block text-xs font-bold text-slate-300 mb-1.5">Lương Trách Nhiệm (VNĐ)</label>
           <input
             type="number"
             value={formData.responsibility_salary}
             onChange={(e) => handleChange('responsibility_salary', e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Phụ Cấp Thâm Niên (VNĐ)</label>
+          <label className="block text-xs font-bold text-slate-300 mb-1.5">Phụ Cấp Thâm Niên (VNĐ)</label>
           <input
             type="number"
             value={formData.seniority_allowance}
             onChange={(e) => handleChange('seniority_allowance', e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Phụ Cấp Chuyên Cần (VNĐ)</label>
+          <label className="block text-xs font-bold text-slate-300 mb-1.5">Phụ Cấp Chuyên Cần (VNĐ)</label>
           <input
             type="number"
             value={formData.diligence_allowance}
             onChange={(e) => handleChange('diligence_allowance', e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Trừ Bảo Hiểm (%)</label>
+          <label className="block text-xs font-bold text-slate-300 mb-1.5">Trừ Bảo Hiểm (%)</label>
           <input
             type="number"
             step="0.1"
             value={formData.insurance_rate}
             onChange={(e) => handleChange('insurance_rate', e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Phí Công Đoàn (%)</label>
+          <label className="block text-xs font-bold text-slate-300 mb-1.5">Phí Công Đoàn (%)</label>
           <input
             type="number"
             step="0.1"
             value={formData.union_rate}
             onChange={(e) => handleChange('union_rate', e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-2xl text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
         </div>
@@ -162,10 +162,10 @@ export default function SalaryConfigTab({ config, userId, onRefresh }: Props) {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition active:scale-95 disabled:opacity-50"
+            className="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-2xl shadow-lg shadow-indigo-600/30 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            <Save className="w-5 h-5" />
-            {saving ? 'Đang lưu...' : 'Lưu Cài Đặt'}
+            <Save className="w-4 h-4" />
+            {saving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
           </button>
         </div>
       </form>
